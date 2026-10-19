@@ -1,0 +1,33 @@
+{
+  "question": "Can a class-balanced, CV-tuned LightGBM that uses the few confirmed fraud labels beat a label-free unsupervised anomaly detector on time-ordered credit-card fraud detection?",
+  "method": "Time-sorted 70/30 split; Isolation Forest (label-free) vs class-balanced LightGBM with 3-fold stratified CV random search on the training period; PR-AUC on the later test period; seeds 42-44.",
+  "dataset": {
+    "name": "OpenML 1597 Credit Card Fraud",
+    "source_url": "https://www.openml.org/d/1597",
+    "n_rows": 284807,
+    "n_train": 199365,
+    "n_test": 85442,
+    "same_as_paper": false,
+    "baseline_is_papers_method": false
+  },
+  "metric_name": "PR-AUC (average precision) on test period",
+  "higher_is_better": true,
+  "baseline": "Isolation Forest (sklearn, 200 trees), label-free, fitted on training features only.",
+  "improved": "LightGBM with class_weight='balanced', hyperparameters chosen by 3-fold stratified CV random search (8 candidates) on training data using training fraud labels.",
+  "metrics": {
+    "baseline_score": 0.037976067074414754,
+    "improved_score": 0.7993210707521179,
+    "improvement": 0.7613450036777032,
+    "baseline_score_std": 0.005350760692735535,
+    "improved_score_std": 0.0,
+    "baseline_roc_auc": 0.9401937542733317,
+    "improved_roc_auc": 0.9848300338799435,
+    "baseline_recall_1pct": 0.4506172839506173,
+    "improved_recall_1pct": 0.8611111111111112,
+    "baseline_f1": 0.1010730356524749,
+    "improved_f1": 0.19314641744548286,
+    "improved_cv_pr_auc": 0.8658075710989354,
+    "test_fraud_count": 108
+  },
+  "notes": "Best CV params: {'reg_lambda': 1.0, 'num_leaves': 15, 'n_estimators': 200, 'min_child_samples': 20, 'learning_rate': 0.1}. Single time-ordered split; test fraud count is small so estimates are noisy. CV is stratified, not time-aware. The Isolation Forest is a generic label-free stand-in, not the paper's GraphGuard method and not a re-implementation of it. Secondary F1 and recall use a top-1% alert rate. std is population std over 3 seeds. Full dataset used (no subsampling) since runtime is well within budget. The features are PCA components, so no graph structure is used."
+}
