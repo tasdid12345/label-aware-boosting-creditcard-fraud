@@ -18,6 +18,30 @@ Outputs: `results.json` and `figures/pr_auc_comparison.png`.
 
 Fix note: the ARFF loader now receives decoded text instead of bytes, which newer SciPy versions require. The method, split, baseline and test set are unchanged.
 
+## Results (latest run)
+
+On the OpenML 1597 credit-card fraud dataset, a standard label-free Isolation Forest reached PR-AUC 0.038 on the later test period, while a class-balanced, CV-tuned LightGBM trained on training-period fraud labels reached 0.799 on the same test set (108 fraud cases, so noisy).
+
+| Metric | Value |
+|---|---|
+| baseline_score | 0.03798 |
+| improved_score | 0.7993 |
+| improvement | 0.7613 |
+| baseline_score_std | 0.005351 |
+| improved_score_std | 0 |
+| baseline_roc_auc | 0.9402 |
+| improved_roc_auc | 0.9848 |
+| baseline_recall_1pct | 0.4506 |
+| improved_recall_1pct | 0.8611 |
+| baseline_f1 | 0.1011 |
+| improved_f1 | 0.1931 |
+| improved_cv_pr_auc | 0.8658 |
+| test_fraud_count | 108 |
+
+Run on 2026-10-19. Full output: [results.json](results.json) · [run.log](run.log)
+
+Notes: Best CV params: {'reg_lambda': 1.0, 'num_leaves': 15, 'n_estimators': 200, 'min_child_samples': 20, 'learning_rate': 0.1}. Single time-ordered split; test fraud count is small so estimates are noisy. CV is stratified, not time-aware. The Isolation Forest is a generic label-free stand-in, not the paper's GraphGuard method and not a re-implementation of it. Secondary F1 and recall use a top-1% alert rate. std is population std over 3 seeds. Full dataset used (no subsampling) since runtime is well within budget. The features are PCA components, so no graph structure is used.
+
 ## Reference
 
 This project is motivated by the following paper:
