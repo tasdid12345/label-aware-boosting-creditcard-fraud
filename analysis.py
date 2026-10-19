@@ -40,7 +40,9 @@ def load_data():
     """Download OpenML dataset 1597 (ARFF) and return a DataFrame with a 0/1 'Class' column."""
     desc = get(META_URL).json()["data_set_description"]
     print("Downloading", desc["name"], "from", desc["url"])
-    data, _ = arff.loadarff(io.BytesIO(get(desc["url"]).content))
+    text = get(desc["url"]).content.decode("utf-8", errors="replace")
+    # Newer SciPy parses ARFF headers with str regexes, so pass a text stream, not bytes.
+    data, _ = arff.loadarff(io.StringIO(text))
     df = pd.DataFrame(data)
     df["Class"] = df["Class"].apply(lambda v: int(v.decode()) if isinstance(v, bytes) else int(v))
     return df

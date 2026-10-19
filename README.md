@@ -1,25 +1,22 @@
-# Label-Supervised vs Label-Free Fraud Detection on Time-Ordered Credit-Card Data
+# Label-aware boosting vs. Isolation Forest on credit-card fraud
 
-Credit-card fraud is rare, costly, and changes over time, so a detector is only useful if it generalises to transactions that arrive after training. The GraphGuard paper ("GraphGuard: Contrastive self-supervised learning for credit-card fraud detection in multi-relational dynamic graphs", arXiv 2407.12440) argues that self-supervised, label-free anomaly detection can work on transaction networks. This experiment asks a simpler, practical question with a standard tabular benchmark rather than a graph.
+Question: can a class-balanced, CV-tuned LightGBM that uses the confirmed fraud labels beat a label-free Isolation Forest on time-ordered credit-card fraud detection?
 
-**Question:** Can a class-balanced, CV-tuned LightGBM that uses the few confirmed fraud labels beat a label-free unsupervised anomaly detector on time-ordered credit-card fraud detection?
+Data: OpenML 1597 (Credit Card Fraud), sorted by `Time`. The first 70% is training data and the last 30% is the test period.
 
-**Dataset:** the OpenML credit-card fraud dataset (ID 1597), with PCA features V1-V28, Time, Amount and a fraud label. Transactions are sorted by Time and split into an earlier training period and a later test period. This is not the paper's own dataset.
+Method:
+- Baseline: Isolation Forest (200 trees), fitted on training features only.
+- Improved: LightGBM with `class_weight="balanced"`. Hyperparameters come from an 8-candidate random search scored by 3-fold stratified CV on the training period only.
+- Metric: PR-AUC (average precision) on the test period, averaged over seeds 42, 43, 44. Secondary metrics are ROC-AUC, recall and F1 at a top-1% alert rate.
 
-**Baseline:** an Isolation Forest fitted on training features only, with no labels. It stands in for the label-free family of methods and is not a re-implementation of GraphGuard.
-
-**Improved model:** a LightGBM classifier with balanced class weights. Its hyperparameters are chosen by a small cross-validated random search on the training period only, using the training fraud labels. The test period is used once for the final comparison.
-
-**Metric:** PR-AUC (average precision) on the test period, where higher is better. ROC-AUC, recall and F1 at a 1% alert rate are secondary metrics.
-
-## How to run
-
+Run:
 ```
 pip install -r requirements.txt
 python analysis.py
 ```
+Outputs: `results.json` and `figures/pr_auc_comparison.png`.
 
-Results: written to `results.json`; charts are saved to `figures/`.
+Fix note: the ARFF loader now receives decoded text instead of bytes, which newer SciPy versions require. The method, split, baseline and test set are unchanged.
 
 ## Reference
 
